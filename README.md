@@ -171,7 +171,7 @@ URL.
 
 ## To be implemented...
 
-- Dockerizing the application
-- Secure the API with authentication (Spring Security, JWT)
-- Deploy to a cloud provider
 - CI/CD to automate builds and testing
+- Dockerizing the application
+- Deploy to a cloud provider
+- Secure the API with authentication (Spring Security, JWT)
