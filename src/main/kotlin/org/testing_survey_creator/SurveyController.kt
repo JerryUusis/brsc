@@ -21,7 +21,7 @@ class SurveyController(private val surveyService: SurveyService) {
     }
 
     @PostMapping
-    fun createSurvey(@RequestBody dto: SurveyDTO, ucb: UriComponentsBuilder): ResponseEntity<Void> {
+    fun createSurvey(@RequestBody dto: SurveyDTO, ucb: UriComponentsBuilder): ResponseEntity<Unit> {
         val savedSurvey = surveyService.createSurvey(dto)
         // Return path to newly created resource in Location header
         val location = ucb
