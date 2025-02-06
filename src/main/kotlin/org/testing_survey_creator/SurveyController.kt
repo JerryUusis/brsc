@@ -3,34 +3,27 @@ package org.testing_survey_creator
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
-import org.testing_survey_creator.model.Survey
-import org.testing_survey_creator.repository.SurveyRepository
+import org.testing_survey_creator.model.SurveyDTO
+import org.testing_survey_creator.service.SurveyService
 
 @RestController
 @RequestMapping("/api/surveys")
-class SurveyController(private val surveyRepository: SurveyRepository) {
+class SurveyController(private val surveyService: SurveyService) {
 
     @GetMapping
-    fun getAll(): ResponseEntity<List<Survey>> {
-        val surveys = surveyRepository.findAll()
-        return ResponseEntity.ok(surveys)
+    fun getAllSurveys(): List<SurveyDTO> {
+        return surveyService.getAllSurveys()
     }
 
     @GetMapping("/{id}")
-    fun getById(@PathVariable("id") requestedId: Long): ResponseEntity<Survey> {
-        val survey = surveyRepository.findById(requestedId)
-        return if (survey.isPresent) {
-            ResponseEntity.ok(survey.get())
-        } else {
-            ResponseEntity.notFound().build()
-        }
+    fun getSurvey(@PathVariable id: Long): SurveyDTO {
+        return surveyService.getSingleSurvey(id)
     }
 
     @PostMapping
-    fun createSurvey(@RequestBody survey: Survey, ucb: UriComponentsBuilder): ResponseEntity<Void> {
-        val savedSurvey = surveyRepository.save(survey)
-
-        // Return path to newly created resource
+    fun createSurvey(@RequestBody dto: SurveyDTO, ucb: UriComponentsBuilder): ResponseEntity<Void> {
+        val savedSurvey = surveyService.createSurvey(dto)
+        // Return path to newly created resource in Location header
         val location = ucb
             .path("api/surveys/{id}")
             .buildAndExpand(savedSurvey.id)

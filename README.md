@@ -141,7 +141,25 @@ URL.
 
 ## Database architecture
 
-To be implemented...
+### `survey`
+
+| Column       | Type         | Constraints                |
+|--------------|--------------|----------------------------|
+| id           | Big Int      | PRIMARY KEY AUTO_INCREMENT |
+| issue_number | INT          | NOT NULL                   |
+| issue_link   | VARCHAR(255) | NOT NULL                   |
+| task_number  | INT          | NOT NULL                   |
+| task_title   | VARCHAR(255) | NOT NULL                   |
+
+### `instructions`
+
+| Column           | Type         | Constraints                                             |
+|------------------|--------------|---------------------------------------------------------|
+| id               | Big Int      | PRIMARY KEY AUTO_INCREMENT                              |
+| instruction_text | TEXT         | NOT NULL                                                |
+| issue_link       | VARCHAR(255) | NOT NULL                                                |
+| survey_id        | BIGINT       | FOREIGN KEY -> surveys(id), NOT NULL, ON DELETE CASCADE |
+
 
 ## Technologies used
 
