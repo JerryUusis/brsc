@@ -1,5 +1,4 @@
 package org.testing_survey_creator.model
-
 import jakarta.persistence.*
 
 @Entity
@@ -7,16 +6,13 @@ import jakarta.persistence.*
 data class Survey(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    val id: Long = 0,  // Primary key for the database
 
     val issueNumber: Int,
+    val issueLink: String,
+    val taskNumber: Int,
+    val taskTitle: String,
 
-    val issueLink: String = "",
-
-    val taskTitle: String = "",
-
-    @ElementCollection(fetch = FetchType.EAGER) // Force eager loading on relational tables
-    @CollectionTable(name = "survey_instructions", joinColumns = [JoinColumn(name = "survey_id")])
-    @Column(name = "instruction")
-    val instructions: List<String> = listOf(),
+    @OneToMany(mappedBy = "survey", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
+    var instructions: MutableList<Instruction> = mutableListOf()
 )
