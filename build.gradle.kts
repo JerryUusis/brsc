@@ -24,6 +24,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    testImplementation("org.springframework.security:spring-security-test")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
@@ -56,4 +58,20 @@ tasks.withType<Test> {
         showStackTraces = true
         showStandardStreams = false // Set to `true` for verbose output
     }
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    environment("SPRING_PROFILE_ACTIVE", "dev")
+    jvmArgs = listOf("-Dspring.profiles.active=dev")
+}
+
+// https://kotlinlang.org/docs/gradle-configure-project.html
+// https://docs.gradle.org/current/userguide/build_environment.html
+// Will build and launch using spring profile "dev"
+tasks.register<JavaExec>("runDev") {
+    group = "application"
+    mainClass.set("org.testing_survey_creator.TestingSurveyCreatorApplicationKt") // In Kotlin, when you define a main function at the top level (outside of any class), the Kotlin compiler generates a class named after the file, appending Kt to the filename.
+    environment("SPRING_PROFILES_ACTIVE", "dev")
+    classpath = sourceSets["main"].runtimeClasspath
+    dependsOn("build")
 }
