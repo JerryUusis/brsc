@@ -57,3 +57,19 @@ tasks.withType<Test> {
         showStandardStreams = false // Set to `true` for verbose output
     }
 }
+
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    environment("SPRING_PROFILE_ACTIVE", "dev")
+    jvmArgs = listOf("-Dspring.profiles.active=dev")
+}
+
+// https://kotlinlang.org/docs/gradle-configure-project.html
+// https://docs.gradle.org/current/userguide/build_environment.html
+// Will build and launch using spring profile "dev"
+tasks.register<JavaExec>("runDev") {
+    group = "application"
+    mainClass.set("org.testing_survey_creator.TestingSurveyCreatorApplicationKt") // In Kotlin, when you define a main function at the top level (outside of any class), the Kotlin compiler generates a class named after the file, appending Kt to the filename.
+    environment("SPRING_PROFILES_ACTIVE", "dev")
+    classpath = sourceSets["main"].runtimeClasspath
+    dependsOn("build")
+}
