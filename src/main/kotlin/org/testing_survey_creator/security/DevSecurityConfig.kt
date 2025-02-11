@@ -12,7 +12,7 @@ import org.springframework.web.filter.CorsFilter
 
 @Configuration
 @Profile("dev")
-class DevSecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilter) {
+class DevSecurityConfig {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
