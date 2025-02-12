@@ -6,12 +6,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.*
-import org.springframework.test.context.ActiveProfiles
-import org.testcontainers.junit.jupiter.Testcontainers
 import org.testing_survey_creator.model.SurveyDTO
 import org.testing_survey_creator.service.SurveyService
 import org.testing_survey_creator.util.AbstractIntegrationTest
@@ -19,8 +16,6 @@ import java.net.URI
 
 // https://spring.io/guides/tutorials/spring-boot-kotlin
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
-@ActiveProfiles("test")
 class SurveyControllerIntegrationTests @Autowired constructor(
     val restTemplate: TestRestTemplate,
     val surveyService: SurveyService
