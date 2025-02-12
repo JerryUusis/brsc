@@ -1,15 +1,15 @@
-CREATE TABLE surveys
+CREATE TABLE IF NOT EXISTS surveys
 (
-    id           BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id           BIGSERIAL PRIMARY KEY,
     issue_number INT          NOT NULL,
     issue_link   VARCHAR(255) NOT NULL,
     task_number  INT          NOT NULL,
     task_title   VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE instructions
+CREATE TABLE IF NOT EXISTS instructions
 (
-    id               BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id               BIGSERIAL PRIMARY KEY,
     instruction_text TEXT   NOT NULL,
     survey_id        BIGINT NOT NULL,
     FOREIGN KEY (survey_id) REFERENCES surveys (id) ON DELETE CASCADE
