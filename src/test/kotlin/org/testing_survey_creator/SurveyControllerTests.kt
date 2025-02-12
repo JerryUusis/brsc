@@ -57,7 +57,7 @@ class SurveyControllerIntegrationTests @Autowired constructor(
 
     @Test
     fun `Should return single survey with id`() {
-        val expectedSurvey = surveyService.getSingleSurvey(1)
+        val expectedSurvey = surveyService.getSingleSurvey(1L)
         val response: ResponseEntity<String> = restTemplate.getForEntity("/api/surveys/1")
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
@@ -68,6 +68,7 @@ class SurveyControllerIntegrationTests @Autowired constructor(
         // Extract actual response data with JSONPath Query expressions
         // https://github.com/json-path/JsonPath?tab=readme-ov-file#operators
         val actualSurvey = SurveyDTO(
+            id = documentContext.read<Long?>("$.id").toLong(),
             issueNumber = documentContext.read("$.issueNumber"),
             issueLink = documentContext.read("$.issueLink"),
             taskNumber = documentContext.read("$.taskNumber"),

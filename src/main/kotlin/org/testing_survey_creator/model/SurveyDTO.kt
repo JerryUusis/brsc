@@ -4,6 +4,7 @@ package org.testing_survey_creator.model
 // without exposing the database entities (Survey, Instruction) directly to the API
 
 data class SurveyDTO(
+    val id: Long? = null,
     val issueNumber: Int,
     val issueLink: String,
     val taskNumber: Int,

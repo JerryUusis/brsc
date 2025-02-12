@@ -27,6 +27,7 @@ class SurveyService(private val surveyRepository: SurveyRepository) {
         }
 
         return SurveyDTO(
+            id = survey.id,
             issueLink = survey.issueLink,
             taskNumber = survey.taskNumber,
             taskTitle = survey.taskTitle,

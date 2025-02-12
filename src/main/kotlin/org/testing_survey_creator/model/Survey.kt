@@ -6,7 +6,7 @@ import jakarta.persistence.*
 data class Survey(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,  // Primary key for the database
+    val id: Long? = null,  // Primary key for the database
 
     val issueNumber: Int,
     val issueLink: String,
