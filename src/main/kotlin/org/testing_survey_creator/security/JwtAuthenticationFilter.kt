@@ -11,8 +11,10 @@ import org.springframework.web.filter.OncePerRequestFilter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
+@Profile("!test")
 @Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
