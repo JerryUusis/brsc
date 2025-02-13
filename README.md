@@ -19,7 +19,7 @@ Before you start, make sure you have the following installed:
 #### 1. Clone the repository
 
 ```bash
-git clone <repository url>
+git clone https://github.com/JerryUusis/brsc
 ```
 
 #### 2. Setup the database
@@ -141,25 +141,54 @@ URL.
 
 ## Database architecture
 
-### `survey`
+### `surveys`
 
 | Column       | Type         | Constraints                |
-|--------------|--------------|----------------------------|
-| id           | Big Int      | PRIMARY KEY AUTO_INCREMENT |
-| issue_number | INT          | NOT NULL                   |
-| issue_link   | VARCHAR(255) | NOT NULL                   |
-| task_number  | INT          | NOT NULL                   |
-| task_title   | VARCHAR(255) | NOT NULL                   |
+|-------------|-------------|----------------------------|
+| id          | BIGSERIAL    | PRIMARY KEY               |
+| issue_number | INT         | NOT NULL                   |
+| issue_link  | VARCHAR(255) | NOT NULL                   |
+| task_number | INT         | NOT NULL                   |
+| task_title  | VARCHAR(255) | NOT NULL                   |
 
 ### `instructions`
 
 | Column           | Type         | Constraints                                             |
-|------------------|--------------|---------------------------------------------------------|
-| id               | Big Int      | PRIMARY KEY AUTO_INCREMENT                              |
-| instruction_text | TEXT         | NOT NULL                                                |
-| issue_link       | VARCHAR(255) | NOT NULL                                                |
-| survey_id        | BIGINT       | FOREIGN KEY -> surveys(id), NOT NULL, ON DELETE CASCADE |
+|------------------|-------------|---------------------------------------------------------|
+| id              | BIGSERIAL    | PRIMARY KEY                                            |
+| instruction_text | TEXT         | NOT NULL                                              |
+| survey_id       | BIGINT       | FOREIGN KEY -> surveys(id), NOT NULL, ON DELETE CASCADE |
 
+### `users`
+
+| Column        | Type         | Constraints                                        |
+|--------------|-------------|----------------------------------------------------|
+| id           | BIGSERIAL    | PRIMARY KEY                                       |
+| username     | VARCHAR(255) | NOT NULL, UNIQUE                                  |
+| password_hash | TEXT        | NOT NULL                                          |
+| email        | VARCHAR(255) | NOT NULL, UNIQUE                                 |
+| created_at   | TIMESTAMP    | NOT NULL, DEFAULT CURRENT_TIMESTAMP              |
+
+### `roles`
+
+| Column | Type         | Constraints         |
+|--------|-------------|---------------------|
+| id     | BIGSERIAL   | PRIMARY KEY         |
+| name   | VARCHAR(255) | NOT NULL, UNIQUE   |
+
+### `user_roles`
+
+| Column   | Type   | Constraints                                      |
+|----------|--------|--------------------------------------------------|
+| user_id  | BIGINT | FOREIGN KEY -> users(id), NOT NULL, ON DELETE CASCADE |
+| role_id  | BIGINT | FOREIGN KEY -> roles(id), NOT NULL, ON DELETE CASCADE |
+| PRIMARY KEY | (user_id, role_id) | |
+
+### Default Role Insertions
+
+```sql
+INSERT INTO roles(name) VALUES ('USER') ON CONFLICT DO NOTHING;
+INSERT INTO roles(name) VALUES ('ADMIN') ON CONFLICT DO NOTHING;
 
 ## Technologies used
 
@@ -167,11 +196,12 @@ URL.
 - PostgreSQL
 - RESTful API with JSON responses
 - Spring Data JPA
+- Testcontainers
 - Docker image
 
 ## To be implemented...
 
 - CI/CD to automate builds and testing
-- Dockerizing the application
+- Automated deployment to 
 - Deploy to a cloud provider
 - Secure the API with authentication (Spring Security, JWT)
