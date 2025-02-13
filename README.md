@@ -189,6 +189,7 @@ URL.
 ```sql
 INSERT INTO roles(name) VALUES ('USER') ON CONFLICT DO NOTHING;
 INSERT INTO roles(name) VALUES ('ADMIN') ON CONFLICT DO NOTHING;
+```
 
 ## Technologies used
 
