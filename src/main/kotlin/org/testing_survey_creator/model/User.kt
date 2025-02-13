@@ -1,5 +1,7 @@
 package org.testing_survey_creator.model
+
 import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
 import java.time.Instant
 
 @Entity
@@ -13,7 +15,10 @@ data class User (
     val username: String,
     val passwordHash: String,
     val email: String,
-    val createdAt: Instant,
+
+    @Column(name ="created_at", nullable = false, updatable = false)
+    @CreationTimestamp
+    val createdAt: Instant = Instant.now(), // Auto-assign timestamp at creation
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL]) // A user can have multiple roles and role can be assigned to multiple users
     @JoinTable(
