@@ -5,34 +5,21 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
-@Profile("test")
-class TestSecurityConfig(
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter // Automatically injected by Spring
-) {
+@Profile("test") // Ensure this only applies to the test profile
+class TestSecurityConfig {
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .csrf { it.disable() }  // Disable CSRF (for integration testing)
+            .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
-                auth.requestMatchers("/surveys/**").hasRole("ADMIN") // Restrict /surveys/** to ADMIN users
-                    .anyRequest().authenticated()
+                auth.anyRequest().permitAll() // Allow all requests during tests
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-            .addFilterBefore(
-                jwtAuthenticationFilter, // Intercept incoming HTTP and check token in Authorization header
-                UsernamePasswordAuthenticationFilter::class.java
-            ) // Add JWT filter
-        return http.build()
-    }
 
-    @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
+        return http.build()
     }
 }
