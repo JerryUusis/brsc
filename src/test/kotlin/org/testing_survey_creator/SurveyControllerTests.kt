@@ -9,7 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.*
-import org.testing_survey_creator.model.SurveyDTO
+import org.testing_survey_creator.dto.SurveyDTO
 import org.testing_survey_creator.service.SurveyService
 import org.testing_survey_creator.util.AbstractIntegrationTest
 import java.net.URI

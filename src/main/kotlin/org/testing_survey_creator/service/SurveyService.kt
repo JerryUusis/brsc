@@ -3,7 +3,7 @@ package org.testing_survey_creator.service
 import org.springframework.stereotype.Service
 import org.testing_survey_creator.model.Instruction
 import org.testing_survey_creator.model.Survey
-import org.testing_survey_creator.model.SurveyDTO
+import org.testing_survey_creator.dto.SurveyDTO
 import org.testing_survey_creator.repository.SurveyRepository
 
 @Service

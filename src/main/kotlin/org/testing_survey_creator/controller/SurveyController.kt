@@ -1,9 +1,9 @@
-package org.testing_survey_creator
+package org.testing_survey_creator.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
-import org.testing_survey_creator.model.SurveyDTO
+import org.testing_survey_creator.dto.SurveyDTO
 import org.testing_survey_creator.service.SurveyService
 
 @RestController
