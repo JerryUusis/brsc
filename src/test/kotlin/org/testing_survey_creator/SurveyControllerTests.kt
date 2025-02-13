@@ -9,22 +9,17 @@ import org.assertj.core.api.Assertions.assertThat
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.*
-import org.springframework.test.context.ActiveProfiles
-import org.testing_survey_creator.model.SurveyDTO
+import org.testing_survey_creator.dto.SurveyDTO
 import org.testing_survey_creator.service.SurveyService
+import org.testing_survey_creator.util.AbstractIntegrationTest
 import java.net.URI
 
 // https://spring.io/guides/tutorials/spring-boot-kotlin
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-class SurveyControllerIntegrationTests {
-
-    @Autowired
-    private lateinit var restTemplate: TestRestTemplate
-
-    @Autowired
-    private lateinit var surveyService: SurveyService
-
+class SurveyControllerIntegrationTests @Autowired constructor(
+    val restTemplate: TestRestTemplate,
+    val surveyService: SurveyService
+) : AbstractIntegrationTest() {
     @Test
     fun `Should return all surveys`() {
         val response: ResponseEntity<String> = restTemplate.getForEntity("/api/surveys")
@@ -62,7 +57,7 @@ class SurveyControllerIntegrationTests {
 
     @Test
     fun `Should return single survey with id`() {
-        val expectedSurvey = surveyService.getSingleSurvey(1)
+        val expectedSurvey = surveyService.getSingleSurvey(1L)
         val response: ResponseEntity<String> = restTemplate.getForEntity("/api/surveys/1")
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
@@ -73,6 +68,7 @@ class SurveyControllerIntegrationTests {
         // Extract actual response data with JSONPath Query expressions
         // https://github.com/json-path/JsonPath?tab=readme-ov-file#operators
         val actualSurvey = SurveyDTO(
+            id = documentContext.read<Long?>("$.id").toLong(),
             issueNumber = documentContext.read("$.issueNumber"),
             issueLink = documentContext.read("$.issueLink"),
             taskNumber = documentContext.read("$.taskNumber"),
