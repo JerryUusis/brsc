@@ -3,7 +3,13 @@
 **Bug Report Survey Creator (BRSC) API** is a backend service built with **Spring Boot and Kotlin**. It provides CRUD
 operations to manage surveys related to bug reporting, allowing seamless integration with the BRSC frontend application.
 
-## Usage
+
+## Technologies used
+
+- [Spring Boot](https://spring.io/) (Kotlin)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Testcontainers](https://testcontainers.com/)
+- [Docker image](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/)
 
 ### Prerequisites
 
@@ -12,7 +18,30 @@ Before you start, make sure you have the following installed:
 - Java 17+ 
 - Kotlin 1.9+ 
 - Gradle 8+ 
-- Docker (Optional, but recommended for running PostgreSQL)
+- Docker (Optional, but recommended for development)
+
+## Usage
+
+### Running the Application with Docker
+
+If you have Docker installed, you can run BRSC in a container **without manual setup**:
+
+#### 1. Pull the latest image from [Docker Hub](https://hub.docker.com/repository/docker/jerryuusitalo/brsc/general)
+```bash
+docker pull jerryuusitalo/brsc:latest
+```
+
+#### 2. Run the container
+```bash
+docker run -d -p 8080:8080 --name brsc jerryuusitalo/brsc:latest
+```
+
+#### 3. Verify that the container is running
+```bash
+docker ps
+```
+If successful, the API will be available at http://localhost:8080
+
 
 ### Installation
 
@@ -22,9 +51,21 @@ Before you start, make sure you have the following installed:
 git clone https://github.com/JerryUusis/brsc
 ```
 
-#### 2. Setup the database
+#### 2. Setup the database (for development)
 
-Instructions to be implemented...
+BRSC has `docker-compose.yml` that creates a container with images of [PostgreSQL](https://registry.hub.docker.com/_/postgres) database and [Minio](https://registry.hub.docker.com/r/minio/minio) storage. These can (and should) be used when developing the application.
+
+Create a docker container and [launch it in the background](https://docs.docker.com/reference/cli/docker/compose/up/) with the following command:
+
+```bash
+docker compose up -d
+```
+
+If you make changes to the database or want to [clear the volumes](https://docs.docker.com/reference/cli/docker/compose/down/) the following command:
+
+```bash
+docker compose down -v
+```
 
 #### 3. Run the application
 
@@ -33,7 +74,7 @@ Run the following commands from the root folder of the project
 For development run with Gradle:
 
 ```bash
-./gradlew bootRun
+./gradlew runDev
 ```
 
 For deployment
@@ -189,19 +230,9 @@ URL.
 ```sql
 INSERT INTO roles(name) VALUES ('USER') ON CONFLICT DO NOTHING;
 INSERT INTO roles(name) VALUES ('ADMIN') ON CONFLICT DO NOTHING;
+```
 
-## Technologies used
+## Planned features
 
-- Spring Boot (Kotlin)
-- PostgreSQL
-- RESTful API with JSON responses
-- Spring Data JPA
-- Testcontainers
-- Docker image
-
-## To be implemented...
-
-- CI/CD to automate builds and testing
-- Automated deployment to 
+- Automated deployment to AWS
 - Deploy to a cloud provider
-- Secure the API with authentication (Spring Security, JWT)
