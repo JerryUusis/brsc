@@ -20,7 +20,7 @@ data class User (
     @CreationTimestamp
     val createdAt: Instant = Instant.now(), // Auto-assign timestamp at creation
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL]) // A user can have multiple roles and role can be assigned to multiple users
+    @ManyToMany(fetch = FetchType.EAGER) // A user can have multiple roles and role can be assigned to multiple users
     @JoinTable(
         name ="user_roles", // Join table to map many-to-many relationship with columns user_id and role_id
         joinColumns = [JoinColumn(name = "user_id")],

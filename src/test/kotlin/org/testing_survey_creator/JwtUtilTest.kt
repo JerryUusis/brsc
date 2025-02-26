@@ -4,26 +4,24 @@ import io.jsonwebtoken.Jwts
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.testing_survey_creator.model.Role
 import org.testing_survey_creator.security.JwtUtil
-import org.testing_survey_creator.security.SecurityConfig
 import java.util.*
 import javax.crypto.SecretKey
 
-@SpringBootTest(classes = [SecurityConfig::class, JwtUtil::class])
-// Autowire the constructor for dependency injection
-class JwtUtilTest @Autowired constructor(
-    private var jwtUtil: JwtUtil,
-    private var secretKey: SecretKey
-) {
-    val roles = mutableSetOf(Role(name = "USER"), Role(name = "ADMIN"))
+class JwtUtilTest {
+
+    private lateinit var jwtUtil: JwtUtil
+    private lateinit var secretKey: SecretKey
+
+    private val roles = mutableSetOf(Role(name = "USER"), Role(name = "ADMIN"))
+
     @BeforeEach
     fun setUp() {
-        // Inject the custom secret key into JwtUtil
-        // Initialize JwtUtil with the injected SecretKey
+        // Manually initialize SecretKey for isolated testing
+        secretKey = Jwts.SIG.HS256.key().build()
+
+        // Initialize JwtUtil with the generated SecretKey
         jwtUtil = JwtUtil(secretKey)
     }
 
@@ -104,5 +102,4 @@ class JwtUtilTest @Autowired constructor(
         assertEquals(username, jwtUtil.extractUsernameFromToken(validToken))
         assertEquals(roles, jwtUtil.extractRoles(validToken))
     }
-
 }

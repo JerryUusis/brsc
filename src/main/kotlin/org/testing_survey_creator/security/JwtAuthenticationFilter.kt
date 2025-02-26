@@ -1,20 +1,15 @@
 package org.testing_survey_creator.security
 
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.security.SignatureException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.web.filter.OncePerRequestFilter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
-@Profile("!test")
 @Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
@@ -22,10 +17,11 @@ class JwtAuthenticationFilter(
 ) : OncePerRequestFilter() {
 
     /**
-    Intercepts every HTTP request and:
-    Extracts the JWT from the Authorization header.
-    Validates the token using JwtUtil.
-    Sets up Spring Security’s SecurityContext with the authenticated user if the token is valid.
+     * This filter intercepts every incoming HTTP request and:
+     * 1. Extracts the JWT token from the Authorization header.
+     * 2. Validates the token using the JwtUtil.
+     * 3. If the token is valid, loads the user details and creates an Authentication object.
+     * 4. Sets the Authentication object into the SecurityContext, so the request is processed as authenticated.
      */
 
     override fun doFilterInternal(
@@ -33,44 +29,41 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val authHeader: String? = request.getHeader("Authorization")
+        // Retrieve the 'Authorization' header from the HTTP request
+        val authHeader = request.getHeader("Authorization")
 
-        // Check if the header contains a Bearer token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response)
-            return
-        }
+        // Check if header exists and starts with "Bearer "
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
-        // Extract the token (remove "Bearer " prefix)
-        val token = authHeader.substring(7)
-        try {
+            // Extract the token by removing the "Bearer " prefix
+            val token = authHeader.substring(7)
+
+            // Use JwtUtil to Extract username from the token
             val username = jwtUtil.extractUsernameFromToken(token)
 
-            // Ensure no authentication exists already
+            // Proceed only if we got a username and there's no authentication set in the current context.
             if (username != null && SecurityContextHolder.getContext().authentication == null) {
-                val userDetails: UserDetails = userDetailsService.loadUserByUsername(username)
 
-                // Validate token and set authentication
+                // Load user details (which includes password, roles, etc.) from your database or user store.
+                val userDetails = userDetailsService.loadUserByUsername(username)
+
+                // Validate the token: check if it's valid and not expired by comparing the token's subject with the user details.
                 if (jwtUtil.isTokenValid(token, userDetails.username)) {
+
+                    // Create an authentication object with the user details.
+                    // The 'null' credentials mean we're not re-checking the password at this point.
                     val authentication = UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.authorities
                     )
+
+                    // Set additional details on the authentication object, such as the remote IP and session info.
                     authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
+
+                    // Place the authentication object in the SecurityContext, which marks the request as authenticated.
                     SecurityContextHolder.getContext().authentication = authentication
                 }
             }
-        } catch (e: ExpiredJwtException) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token Expired")
-            return
-        } catch (e: SignatureException) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Token Signature")
-            return
-        } catch (e: Exception) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Token")
-            return
         }
-
-        // Continue processing the request
         filterChain.doFilter(request, response)
     }
 }

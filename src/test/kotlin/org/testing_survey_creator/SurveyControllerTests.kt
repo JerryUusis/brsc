@@ -6,10 +6,14 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.client.getForEntity
+import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.*
+import org.testing_survey_creator.dto.LoginDTO
 import org.testing_survey_creator.dto.SurveyDTO
+import org.testing_survey_creator.dto.UserRegistrationDTO
+import org.testing_survey_creator.repository.UserRepository
 import org.testing_survey_creator.service.SurveyService
 import org.testing_survey_creator.util.AbstractIntegrationTest
 import java.net.URI
@@ -17,12 +21,36 @@ import java.net.URI
 // https://spring.io/guides/tutorials/spring-boot-kotlin
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SurveyControllerIntegrationTests @Autowired constructor(
-    val restTemplate: TestRestTemplate,
-    val surveyService: SurveyService
+    private val restTemplate: TestRestTemplate,
+    private val surveyService: SurveyService,
+    private val userRepository: UserRepository
 ) : AbstractIntegrationTest() {
+
+    // Initialize token in beforeEach setup function
+    private lateinit var token: String
+
+    fun getAuthorizationHeaderWithToken(): HttpHeaders {
+        return HttpHeaders().apply { set("Authorization", "Bearer $token") }
+    }
+
+    @BeforeEach
+    fun setup() {
+        userRepository.deleteAll()
+        val testUser = UserRegistrationDTO(username = "testUser", password = "testPassword", email = "test@test.com")
+        val registrationResponse = restTemplate.postForEntity<String>("/api/users", testUser)
+        assertThat(registrationResponse.statusCode).isEqualTo(HttpStatus.CREATED)
+
+        val loginRequestBody = LoginDTO(testUser.username, testUser.password)
+        val loginResponse = restTemplate.postForEntity<Map<String, String>>("/api/login", loginRequestBody)
+
+        token = loginResponse.body?.get("token") ?: throw IllegalStateException("Token is null")
+    }
+
     @Test
     fun `Should return all surveys`() {
-        val response: ResponseEntity<String> = restTemplate.getForEntity("/api/surveys")
+        val headers = getAuthorizationHeaderWithToken()
+        val entity = HttpEntity(null, headers)
+        val response = restTemplate.exchange("/api/surveys", HttpMethod.GET, entity, String::class.java)
 
         // Assert response status
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
@@ -57,8 +85,10 @@ class SurveyControllerIntegrationTests @Autowired constructor(
 
     @Test
     fun `Should return single survey with id`() {
+        val headers = getAuthorizationHeaderWithToken()
+        val entity = HttpEntity(null, headers)
+        val response = restTemplate.exchange("/api/surveys/1", HttpMethod.GET, entity, String::class.java)
         val expectedSurvey = surveyService.getSingleSurvey(1L)
-        val response: ResponseEntity<String> = restTemplate.getForEntity("/api/surveys/1")
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(response.body).isNotEmpty()
@@ -87,7 +117,10 @@ class SurveyControllerIntegrationTests @Autowired constructor(
             instructions = listOf("Don't give up", "Dream"),
             taskNumber = 1
         )
-        val request = HttpEntity(newSurvey, HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON })
+        val request = HttpEntity(newSurvey, HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+            set("Authorization", "Bearer $token")
+        })
 
         val response = restTemplate.postForEntity("/api/surveys", request, String::class.java)
         assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
@@ -103,7 +136,9 @@ class SurveyControllerIntegrationTests @Autowired constructor(
         assertThat(actualLocation).isEqualTo(expectedLocation)
 
         // Check that newly created resource can be found from the expected location
-        val getResponse = restTemplate.getForEntity(expectedLocation, String::class.java)
+        val headers = getAuthorizationHeaderWithToken()
+        val entity = HttpEntity(null, headers)
+        val getResponse = restTemplate.exchange(expectedLocation, HttpMethod.GET, entity, String::class.java)
         assertThat(getResponse.statusCode).isEqualTo(HttpStatus.OK)
         assertThat(getResponse.body).isNotEmpty()
 

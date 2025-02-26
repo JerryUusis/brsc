@@ -10,7 +10,7 @@ import org.testing_survey_creator.service.LoginService
 
 @RestController
 class LoginController(private val loginService: LoginService) {
-    @PostMapping("api/login")
+    @PostMapping("/api/login")
     fun login(@RequestBody loginCredentials: LoginDTO): ResponseEntity<Map<String, String>> { // Return JSON
         val token = loginService.loginUser(loginCredentials)
         return ResponseEntity.ok(mapOf("token" to token))
