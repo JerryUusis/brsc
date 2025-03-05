@@ -1,4 +1,4 @@
-package org.testing_survey_creator
+package org.testing_survey_creator.integration.controller
 
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
