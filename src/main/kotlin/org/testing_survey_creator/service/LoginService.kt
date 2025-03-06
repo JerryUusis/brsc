@@ -44,7 +44,6 @@ class LoginService(
         //    matches the stored password hash.
         //  - If successful, it returns an Authentication object that is marked as authenticated.
         try {
-            println("LoginService: Triggered login service")
             val authentication = authenticationManager.authenticate(authToken)
 
             // Extract the roles from the Authentication object and map them with Role model
