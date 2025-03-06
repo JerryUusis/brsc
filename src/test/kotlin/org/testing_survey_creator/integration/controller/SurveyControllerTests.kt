@@ -1,4 +1,4 @@
-package org.testing_survey_creator
+package org.testing_survey_creator.integration.controller
 
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
@@ -40,7 +40,7 @@ class SurveyControllerIntegrationTests @Autowired constructor(
         val registrationResponse = restTemplate.postForEntity<String>("/api/users", testUser)
         assertThat(registrationResponse.statusCode).isEqualTo(HttpStatus.CREATED)
 
-        val loginRequestBody = LoginDTO(testUser.username, testUser.password)
+        val loginRequestBody = LoginDTO(testUser.email, testUser.password)
         val loginResponse = restTemplate.postForEntity<Map<String, String>>("/api/login", loginRequestBody)
 
         token = loginResponse.body?.get("token") ?: throw IllegalStateException("Token is null")

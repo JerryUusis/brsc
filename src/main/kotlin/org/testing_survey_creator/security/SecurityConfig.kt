@@ -13,6 +13,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import org.springframework.web.filter.CorsFilter
 import javax.crypto.SecretKey
 
 @Configuration
@@ -20,13 +23,17 @@ import javax.crypto.SecretKey
 class SecurityConfig {
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity, jwtAuthenticationFilter: JwtAuthenticationFilter): SecurityFilterChain {
+    fun securityFilterChain(
+        http: HttpSecurity,
+        jwtAuthenticationFilter: JwtAuthenticationFilter
+    ): SecurityFilterChain {
         http
+            .cors {}
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(HttpMethod.POST, "/api/login", "/api/users").permitAll()
                 auth.anyRequest().authenticated()
-//                auth.anyRequest().permitAll() // Allow all requests during tests
+//                auth.anyRequest().permitAll() // Allow all requests
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
@@ -55,4 +62,18 @@ class SecurityConfig {
         return authConfig.authenticationManager
     }
 
+    // Allow requests from dev environment
+    @Bean
+    fun corsFilter(): CorsFilter {
+        val source = UrlBasedCorsConfigurationSource()
+        val config = CorsConfiguration()
+
+        config.allowedOrigins = listOf("http://localhost:5173")
+        config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
+        config.allowedHeaders = listOf("*")
+        config.allowCredentials = true
+
+        source.registerCorsConfiguration("/**", config)
+        return CorsFilter(source)
+    }
 }

@@ -1,4 +1,4 @@
-package org.testing_survey_creator
+package org.testing_survey_creator.unit
 
 import io.jsonwebtoken.Jwts
 import org.junit.jupiter.api.Assertions.*

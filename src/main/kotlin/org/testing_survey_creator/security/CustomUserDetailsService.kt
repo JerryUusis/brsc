@@ -24,16 +24,14 @@ import org.testing_survey_creator.repository.UserRepository
 @Service
 class CustomUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
     override fun loadUserByUsername(email: String): UserDetails {
-
         // 1. Retrieve the user from the database using the provided email.
         // If no user is found, throw UsernameNotFoundException.
-        val userEntity = userRepository.findByUsername(email)
+        val userEntity = userRepository.findByEmail(email)
             .orElseThrow { UsernameNotFoundException("User with email '$email' not found") }
-
         // 2. Convert the user entity into a Spring Security UserDetails object.
         // The builder provided by Spring Security's User class is used to construct the object.
         return User
-            .withUsername(userEntity.username) // Set the identifier (which is email in current implementation)
+            .withUsername(userEntity.email) // Set the identifier (which is email in current implementation)
             .password(userEntity.passwordHash)
             .authorities(userEntity.roles.map { role -> SimpleGrantedAuthority(role.name) })
             .build()

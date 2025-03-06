@@ -1,10 +1,10 @@
 package org.testing_survey_creator.util
 
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
 
 object PostgresTestContainer {
     val instance: PostgreSQLContainer<Nothing> =
