@@ -23,7 +23,10 @@ import javax.crypto.SecretKey
 class SecurityConfig {
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity, jwtAuthenticationFilter: JwtAuthenticationFilter): SecurityFilterChain {
+    fun securityFilterChain(
+        http: HttpSecurity,
+        jwtAuthenticationFilter: JwtAuthenticationFilter
+    ): SecurityFilterChain {
         http
             .cors {}
             .csrf { it.disable() }
@@ -73,5 +76,4 @@ class SecurityConfig {
         source.registerCorsConfiguration("/**", config)
         return CorsFilter(source)
     }
-
 }

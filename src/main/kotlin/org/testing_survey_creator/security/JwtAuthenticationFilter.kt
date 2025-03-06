@@ -2,7 +2,6 @@ package org.testing_survey_creator.security
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.web.filter.OncePerRequestFilter
 import jakarta.servlet.FilterChain
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Component
 @Component
 class JwtAuthenticationFilter(
     private val jwtUtil: JwtUtil,
-    private val userDetailsService: UserDetailsService
+    private val customUserDetailsService: CustomUserDetailsService
 ) : OncePerRequestFilter() {
 
     /**
@@ -45,7 +44,7 @@ class JwtAuthenticationFilter(
             if (username != null && SecurityContextHolder.getContext().authentication == null) {
 
                 // Load user details (which includes password, roles, etc.) from your database or user store.
-                val userDetails = userDetailsService.loadUserByUsername(username)
+                val userDetails = customUserDetailsService.loadUserByUsername(username)
 
                 // Validate the token: check if it's valid and not expired by comparing the token's subject with the user details.
                 if (jwtUtil.isTokenValid(token, userDetails.username)) {

@@ -1,12 +1,16 @@
 package org.testing_survey_creator.service
 
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Service
 import org.testing_survey_creator.dto.LoginDTO
 import org.testing_survey_creator.model.Role
 import org.testing_survey_creator.security.JwtUtil
 import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UsernameNotFoundException
+import org.testing_survey_creator.exception.CustomAuthException
 
 @Service
 class LoginService(
@@ -39,19 +43,28 @@ class LoginService(
         //  - The provider then uses the PasswordEncoder to verify that the provided password
         //    matches the stored password hash.
         //  - If successful, it returns an Authentication object that is marked as authenticated.
-        val authentication = authenticationManager.authenticate(authToken)
+        try {
+            println("LoginService: Triggered login service")
+            val authentication = authenticationManager.authenticate(authToken)
 
-        // Extract the roles from the Authentication object and map them with Role model
-        val roles = authentication.authorities.map { Role(name = it.authority) }.toMutableSet()
+            // Extract the roles from the Authentication object and map them with Role model
+            val roles = authentication.authorities.map { Role(name = it.authority) }.toMutableSet()
 
-        // Extract the authenticated user's details.
-        // The principal is cast to Spring Security's User which contains the username,
-        // password, and authorities. Note that the username here corresponds to the email.
-        val userDetails = authentication.principal as User
+            // Extract the authenticated user's details.
+            // The principal is cast to Spring Security's User which contains the username,
+            // password, and authorities. Note that the username here corresponds to the email.
+            val userDetails = authentication.principal as User
 
-        // 5. Generate a JWT token.
-        //    The JwtUtil.generateToken method creates a token that includes the username and roles as claims,
-        //    sets the issuance and expiration times, and signs it with a secret key.
-        return jwtUtil.generateToken(userDetails.username, roles)
+            // 5. Generate a JWT token.
+            //    The JwtUtil.generateToken method creates a token that includes the username and roles as claims,
+            //    sets the issuance and expiration times, and signs it with a secret key.
+            return jwtUtil.generateToken(userDetails.username, roles)
+        } catch (exception: UsernameNotFoundException) {
+            throw CustomAuthException("Invalid credentials", exception)
+        } catch (exception: BadCredentialsException) {
+            throw CustomAuthException("Authentication failed", exception)
+        } catch (exception: AuthenticationException) {
+            throw CustomAuthException(exception.message ?: "Authentication error", exception)
+        }
     }
 }

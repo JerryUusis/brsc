@@ -24,4 +24,15 @@ class GlobalExceptionHandler {
             .build()
         return errorResponse
     }
+
+    @ExceptionHandler(CustomAuthException::class)
+    fun handleCustomAuthException(exception: CustomAuthException): ErrorResponse {
+        return ErrorResponse.builder(
+            exception,
+            ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.message ?: "Authentication failed")
+        )
+            .type(URI("urn:problem-type:auth-failure"))
+            .instance(URI("/api/login"))
+            .build()
+    }
 }
