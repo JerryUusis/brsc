@@ -20,7 +20,7 @@ class JwtAuthenticationFilter(
      * 1. Extracts the JWT token from the Authorization header.
      * 2. Validates the token using the JwtUtil.
      * 3. If the token is valid, loads the user details and creates an Authentication object.
-     * 4. Sets the Authentication object into the SecurityContext, so the request is processed as authenticated.
+     * 4. Sets the Authentication object into the SecurityContext, so the request is processed as authenticated for the lifecycle of the request.
      */
 
     override fun doFilterInternal(
@@ -37,14 +37,15 @@ class JwtAuthenticationFilter(
             // Extract the token by removing the "Bearer " prefix
             val token = authHeader.substring(7)
 
-            // Use JwtUtil to Extract username from the token
-            val username = jwtUtil.extractUsernameFromToken(token)
+            // Use JwtUtil to Extract email from the token
+            val email = jwtUtil.extractEmailFromToken(token)
 
-            // Proceed only if we got a username and there's no authentication set in the current context.
-            if (username != null && SecurityContextHolder.getContext().authentication == null) {
+            // Proceed only if we got email from token
+            if (email != null) {
 
-                // Load user details (which includes password, roles, etc.) from your database or user store.
-                val userDetails = customUserDetailsService.loadUserByUsername(username)
+                // Load user details by using email as identifier (which includes password, roles, etc.) from your database
+                // loadUserByUsername will use findByEmail to get the right user entity and set the username accordingly
+                val userDetails = customUserDetailsService.loadUserByUsername(email)
 
                 // Validate the token: check if it's valid and not expired by comparing the token's subject with the user details.
                 if (jwtUtil.isTokenValid(token, userDetails.username)) {

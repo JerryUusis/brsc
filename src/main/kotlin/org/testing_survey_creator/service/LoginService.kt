@@ -11,11 +11,13 @@ import org.testing_survey_creator.security.JwtUtil
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.testing_survey_creator.exception.CustomAuthException
+import org.testing_survey_creator.repository.UserRepository
 
 @Service
 class LoginService(
     private val authenticationManager: AuthenticationManager,
     private val jwtUtil: JwtUtil,
+    private val userRepository: UserRepository,
     /**
      * Authenticates a user based on the provided login credentials (email and password),
      * and if successful, generates and returns a JWT token.
@@ -50,14 +52,18 @@ class LoginService(
             val roles = authentication.authorities.map { Role(name = it.authority) }.toMutableSet()
 
             // Extract the authenticated user's details.
-            // The principal is cast to Spring Security's User which contains the username,
-            // password, and authorities. Note that the username here corresponds to the email.
+            // The principal is cast to Spring Security's User which contains the username, password, and authorities
             val userDetails = authentication.principal as User
 
+            val userEntity = userRepository.findByEmail(loginDto.email)
+                .orElseThrow { UsernameNotFoundException("User with email '$loginDto.email not found") }
+
             // 5. Generate a JWT token.
-            //    The JwtUtil.generateToken method creates a token that includes the username and roles as claims,
+            //    The JwtUtil.generateToken method creates a token that includes the username, email, id and roles as claims,
             //    sets the issuance and expiration times, and signs it with a secret key.
-            return jwtUtil.generateToken(userDetails.username, roles)
+            return jwtUtil.generateToken(
+                userDetails.username, userEntity.email, userEntity.id, roles
+            )
         } catch (exception: UsernameNotFoundException) {
             throw CustomAuthException("Invalid credentials", exception)
         } catch (exception: BadCredentialsException) {

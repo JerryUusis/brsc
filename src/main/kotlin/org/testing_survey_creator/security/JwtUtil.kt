@@ -14,12 +14,14 @@ class JwtUtil(private val secretKey: SecretKey) {
     private val expirationMs: Long = 1000 * 60 * 60 // 1 hour
 
     // https://github.com/jwtk/jjwt?tab=readme-ov-file#creating-a-jwt
-    fun generateToken(username: String, roles: MutableSet<Role>): String {
+    fun generateToken(username: String, email: String, id: Long?, roles: MutableSet<Role>): String {
         return Jwts.builder()
             .subject(username)
             .claim(
                 "roles",
                 roles.map { it.name }) // Store as a List<String>. More about custom claims: https://github.com/jwtk/jjwt?tab=readme-ov-file#custom-claims
+            .claim("email", email)
+            .claim("id", id.toString())
             .issuedAt(Date())
             .expiration(Date(System.currentTimeMillis() + expirationMs))
             .signWith(secretKey)
@@ -43,6 +45,9 @@ class JwtUtil(private val secretKey: SecretKey) {
         return getClaims(token)?.subject
     }
 
+    fun extractEmailFromToken(token: String): String? {
+        return getClaims(token)?.get("email")?.toString()
+    }
 
     fun extractRoles(token: String): MutableSet<Role> {
         val claims = getClaims(token)
