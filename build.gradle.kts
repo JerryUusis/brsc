@@ -26,6 +26,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(module = "mockito-core") // https://spring.io/guides/tutorials/spring-boot-kotlin Check Exposing HTTP API
+    }
+    testImplementation("com.ninja-squad:springmockk:4.0.2") // https://github.com/Ninja-Squad/springmockk
+    testImplementation("io.mockk:mockk:1.13.16") // https://mockk.io/
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:postgresql") // https://github.com/jwtk/jjwt?tab=readme-ov-file#gradle
@@ -34,7 +39,6 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
