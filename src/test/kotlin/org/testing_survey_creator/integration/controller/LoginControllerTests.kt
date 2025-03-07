@@ -27,19 +27,21 @@ class LoginControllerTests @Autowired constructor(
     private val jwtUtil: JwtUtil
 ) : AbstractIntegrationTest() {
 
+    private lateinit var newUser: UserRegistrationDTO
+
     @BeforeEach
     fun setup() {
         userRepository.deleteAll()
-    }
 
-    @Test
-    fun `Successful login should return valid token`() {
-        val newUser = UserRegistrationDTO("testuser", "test@user.com", "testpassword")
+        newUser = UserRegistrationDTO("testuser", "test@user.com", "testpassword")
 
         val registrationResponse = restTemplate.postForEntity("/api/users", newUser, UserRegistrationDTO::class.java)
         assertThat(registrationResponse.statusCode).isEqualTo(HttpStatus.CREATED)
         assertThat(userRepository.findByEmail(newUser.email)).isPresent
+    }
 
+    @Test
+    fun `Successful login should return valid token`() {
         val loginBody = LoginDTO(newUser.email, newUser.password)
         val loginResponse = restTemplate.postForEntity("/api/login", loginBody, String::class.java)
         assertThat(loginResponse.statusCode).isEqualTo(HttpStatus.OK)
@@ -48,10 +50,12 @@ class LoginControllerTests @Autowired constructor(
         val token = documentContext.read<String>("$.token")
 
         assertThat(token).startsWith("eyJhb")
-        assertThat(jwtUtil.isTokenValid(
-            token,
-            newUser.username,
-        )).isTrue
+        assertThat(
+            jwtUtil.isTokenValid(
+                token,
+                newUser.username,
+            )
+        ).isTrue
     }
 
     @Test
@@ -64,5 +68,17 @@ class LoginControllerTests @Autowired constructor(
 
         assertThat(errorResponse.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
         assertThat(errorResponse.body).contains("Authentication failed")
+    }
+
+    @Test
+    fun `Should respond with 401 exception with with wrong password`() {
+        val wrongPassword = LoginDTO(newUser.email, "wrongpassword")
+        val entity =
+            HttpEntity(wrongPassword, HttpHeaders().apply { set("Content-Type", "application/problem+json") })
+        val errorLoginResponse =
+            restTemplate.exchange(URI.create("/api/login"), HttpMethod.POST, entity, String::class.java)
+
+        assertThat(errorLoginResponse.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(errorLoginResponse.body).contains("Authentication failed")
     }
 }
