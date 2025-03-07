@@ -31,7 +31,7 @@ class CustomUserDetailsService(private val userRepository: UserRepository) : Use
         // 2. Convert the user entity into a Spring Security UserDetails object.
         // The builder provided by Spring Security's User class is used to construct the object.
         return User
-            .withUsername(userEntity.email) // Set the identifier (which is email in current implementation)
+            .withUsername(userEntity.username)
             .password(userEntity.passwordHash)
             .authorities(userEntity.roles.map { role -> SimpleGrantedAuthority(role.name) })
             .build()

@@ -50,7 +50,7 @@ class LoginControllerTests @Autowired constructor(
         assertThat(token).startsWith("eyJhb")
         assertThat(jwtUtil.isTokenValid(
             token,
-            newUser.email,
+            newUser.username,
         )).isTrue
     }
 

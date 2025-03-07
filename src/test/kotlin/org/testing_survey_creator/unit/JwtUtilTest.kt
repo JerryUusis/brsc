@@ -1,6 +1,7 @@
 package org.testing_survey_creator.unit
 
 import io.jsonwebtoken.Jwts
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -15,6 +16,11 @@ class JwtUtilTest {
     private lateinit var secretKey: SecretKey
 
     private val roles = mutableSetOf(Role(name = "USER"), Role(name = "ADMIN"))
+    private val username = "test username"
+    private val id: Long = 1
+    private val email = "test@test.com"
+    private lateinit var token: String
+
 
     @BeforeEach
     fun setUp() {
@@ -23,40 +29,37 @@ class JwtUtilTest {
 
         // Initialize JwtUtil with the generated SecretKey
         jwtUtil = JwtUtil(secretKey)
+
+        token = jwtUtil.generateToken(
+            username,
+            email,
+            id,
+            roles
+        )
     }
 
     @Test
     fun `should generate a valid JWT token`() {
-        val username = "testUser"
-
-        val token = jwtUtil.generateToken(username, roles)
-
         assertNotNull(token) // Ensure token is generated
     }
 
     @Test
     fun `should extract username from token`() {
-        val username = "testUser"
-
-        val token = jwtUtil.generateToken(username, roles)
-
         assertEquals(username, jwtUtil.extractUsernameFromToken(token))
     }
 
     @Test
     fun `should extract roles from token`() {
-        val username = "testUser"
-
-        val token = jwtUtil.generateToken(username, roles)
-
         assertEquals(roles, jwtUtil.extractRoles(token))
     }
 
     @Test
-    fun `should validate a correct token`() {
-        val username = "validUser"
-        val token = jwtUtil.generateToken(username, roles)
+    fun `should extract email from token`() {
+        assertThat(jwtUtil.extractEmailFromToken(token)).isEqualTo(email)
+    }
 
+    @Test
+    fun `should validate a correct token`() {
         assertTrue(jwtUtil.isTokenValid(token, username))
     }
 
@@ -69,8 +72,6 @@ class JwtUtilTest {
 
     @Test
     fun `should detect an expired token`() {
-        val username = "expiredUser"
-
         // Generate a token with a past expiration date
         val expiredToken = Jwts.builder()
             .subject(username)
@@ -86,14 +87,12 @@ class JwtUtilTest {
 
     @Test
     fun `should validate user with a custom secret key`() {
-        val username = "testUser"
-
         // Generate a valid token
         val validToken = Jwts.builder()
             .subject(username)
             .claim("roles", roles.map { it.name })
             .issuedAt(Date(System.currentTimeMillis()))
-            .expiration(Date(System.currentTimeMillis() + (1000 * 60 * 60))) // 1 hour from now
+            .expiration(Date(System.currentTimeMillis() + (1000 * 60 * 60)))
             .signWith(secretKey)
             .compact()
 
