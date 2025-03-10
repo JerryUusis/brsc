@@ -7,6 +7,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.testing_survey_creator.dto.SurveyDTO
 import org.testing_survey_creator.model.Survey
 import org.testing_survey_creator.repository.SurveyRepository
 import org.testing_survey_creator.service.SurveyService
@@ -34,6 +35,15 @@ class SurveyServiceTests {
         mutableListOf()
     )
 
+    private val mockSurveyDTO = SurveyDTO(
+        1,
+        123,
+        "www.test.com",
+        1,
+        "Check for button",
+        listOf()
+    )
+
     @Test
     fun `getAllSurveys should call findAll from surveyRepository`() {
         every { surveyRepository.findAll() } returns listOf()
@@ -46,5 +56,12 @@ class SurveyServiceTests {
         every { surveyRepository.findById(any()) } returns Optional.of(mockSurveyEntity)
         surveyService.getSingleSurvey(1)
         verify(exactly = 1) { surveyRepository.findById(1) }
+    }
+
+    @Test
+    fun `createSurvey should call save from surveyRepository`() {
+        every { surveyRepository.save(any()) } returns mockSurveyEntity
+        surveyService.createSurvey(mockSurveyDTO)
+        verify(exactly = 1) { surveyRepository.save(any()) }
     }
 }
