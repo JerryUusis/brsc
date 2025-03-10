@@ -4,15 +4,13 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.testing_survey_creator.dto.SurveyDTO
-import org.testing_survey_creator.model.Instruction
 import org.testing_survey_creator.model.Survey
 import org.testing_survey_creator.repository.SurveyRepository
 import org.testing_survey_creator.service.SurveyService
+import java.util.Optional
 
 @ExtendWith(MockKExtension::class)
 class SurveyServiceTests {
@@ -27,10 +25,26 @@ class SurveyServiceTests {
         surveyService = SurveyService(surveyRepository)
     }
 
+    private val mockSurveyEntity = Survey(
+        1,
+        1,
+        "www.test.com",
+        123,
+        "Check for button",
+        mutableListOf()
+    )
+
     @Test
     fun `getAllSurveys should call findAll from surveyRepository`() {
         every { surveyRepository.findAll() } returns listOf()
         surveyService.getAllSurveys()
         verify(exactly = 1) { surveyRepository.findAll() }
+    }
+
+    @Test
+    fun `getSingleSurvey should call findById from surveyRepository`() {
+        every { surveyRepository.findById(any()) } returns Optional.of(mockSurveyEntity)
+        surveyService.getSingleSurvey(1)
+        verify(exactly = 1) { surveyRepository.findById(1) }
     }
 }
