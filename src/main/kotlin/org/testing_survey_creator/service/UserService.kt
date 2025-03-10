@@ -16,13 +16,12 @@ class UserService(
     private val passwordEncoder: PasswordEncoder
 ) {
     fun createUser(dto: UserRegistrationDTO): User {
-        val userRole = roleRepository.findByName("USER").orElseThrow { IllegalStateException("Role not found") }
-
         val existingUser = userRepository.findByEmail(dto.email).isPresent
         if (existingUser) {
             throw UserAlreadyExistsException("User already exists")
         }
 
+        val userRole = roleRepository.findByName("USER").orElseThrow { IllegalStateException("Role not found") }
         val newUser = User(
             username = dto.username,
             email = dto.email,
